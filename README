@@ -1,0 +1,81 @@
+SimpleDroidRPC - A simple RPC for Android
+
+License
+  The file idl/includes/queue.h is under the BSD license (open it for more
+  informations).
+
+  All other files in this project are licensed under the Beerware license.
+  
+  "THE BEER-WARE LICENSE" (Revision 42):
+  As long as you retain this notice you can do whatever you want with this stuff.
+  If we meet some day, and you think this stuff is worth it, you can buy me a
+  beer in return.
+
+
+Howto
+  1. Add a reference to the Simple Droid RPC library
+  2. Create the classes you want to export
+  3. Write the interface descriptions
+  4. Compile it and add the generated files to your Android project
+
+  To start a server instance instantiate the RPCServerInstance class.
+  
+  To call a remote procedure instantiate the corresponding "Remote class" (for a
+  given class named "Example", instantiate the generated RemoteExample). Then
+  use it as if it was local.
+
+
+Interface description example
+  {
+    interface Operations {
+      method add (int a, int b) returns (int)
+      method sub (int a, int b) returns (int) async
+    }
+
+    interface Echo {
+      method getEcho () returns (String)
+    }
+  }
+
+An async method use a callback to handle the result while a non a sync method
+wait for the response.
+
+
+Server example
+  In the onCreate method of the main activity :
+  new RPCServerInstance (4000);
+
+
+Remote method call example
+  RemoteOperation remote = new RemoteOperation ("192.168.42.42", 4000);
+  try {
+    int res = remote.add (2, 3);
+  } catch (Exception e) {
+    ...
+  }
+
+Remote async method call example
+  RemoteOperation remote = new RemoteOperation ("192.168.42.42", 4000);
+  remote.sub (2, 3, new InvocationListener<Integer> () {
+    @Override
+    public void onComplete(Integer result) {
+      ...
+    }
+
+    @Override
+    public void onException(Exception e) {
+      ...
+    }
+  });      
+
+
+idl-compiler
+  Usage: ./idl-compiler output_dir package_name interface_descriptor_file
+
+
+generated classes constructors
+  public RPCServerInstance ();
+  public RPCServerInstance (int port);
+  public RemoteExample (String address);
+  public RemoteExample (String address, int port);
+  public RemoteExample (String address, int port, int timeout);
